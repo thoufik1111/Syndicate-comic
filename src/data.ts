@@ -1,0 +1,60 @@
+import ep1 from './assets/posters/ep1.png'
+import ep2 from './assets/posters/ep2.png'
+import ep3 from './assets/posters/ep3.png'
+import ep4 from './assets/posters/ep4.png'
+import ep5 from './assets/posters/ep5.png'
+import ep6 from './assets/posters/ep6.png'
+import ep7 from './assets/posters/ep7.png'
+import ep8 from './assets/posters/ep8.png'
+import ep9 from './assets/posters/ep9.png'
+const g = (o: Record<string, string>) => Object.entries(o).sort(([a], [b]) => a.localeCompare(b, undefined, { numeric: true }))
+const all = import.meta.glob('./episodes/*/*.{jpg,jpeg,png,webp,avif}', { eager: true, query: '?url', import: 'default' }) as Record<string, string>
+export const hero = Object.values(import.meta.glob('./assets/hero.*', { eager: true, query: '?url', import: 'default' }) as Record<string, string>)[0] as string | undefined
+const art = import.meta.glob('./characters/*.*', { eager: true, query: '?url', import: 'default' }) as Record<string, string>
+
+export type Episode = { n: number; title: string; desc: string; pdf?: string; poster: string }
+export const episodes: Episode[] = [
+  { n: 1, title: 'Guardians Syndicate', desc: '', pdf: '/episodes/01/ep1_compressed.pdf', poster: ep1 },
+  { n: 2, title: 'The Other Side',      desc: '', pdf: '/episodes/02/ep2_compressed.pdf', poster: ep2 },
+  { n: 3, title: 'Tank Bait',           desc: '', pdf: '/episodes/03/ep3_compressed.pdf', poster: ep3 },
+  { n: 4, title: 'Second Strike',       desc: '', pdf: '/episodes/04/ep4_compressed.pdf', poster: ep4 },
+  { n: 5, title: 'The Price',           desc: '', pdf: '/episodes/05/ep5_compressed.pdf', poster: ep5 },
+  { n: 6, title: 'The Knot',            desc: '', pdf: '/episodes/06/ep6_compressed.pdf', poster: ep6 },
+  { n: 7, title: 'The Puppet',          desc: '', pdf: '/episodes/07/ep7_compressed.pdf', poster: ep7 },
+  { n: 8, title: 'Foulplay & Chaos',    desc: '', pdf: '/episodes/08/ep8_compressed.pdf', poster: ep8 },
+  { n: 9, title: 'Alpha Unleashed',     desc: '', pdf: '/episodes/09/ep9_compressed.pdf', poster: ep9 },
+]
+export function episodeAssets(n: number) {
+  const k = `/episodes/${String(n).padStart(2, '0')}/`
+  const f = g(all).filter(([p]) => p.includes(k))
+  const cover = f.find(([p]) => /\/cover\./.test(p))?.[1]
+  const pages = f.filter(([p]) => !/\/cover\./.test(p)).map(([, u]) => u)
+  return { pages, cover: cover ?? pages[0] }
+}
+export const volumes = [
+  { n: 1, name: 'The Beginning', status: 'Complete', note: '09 episodes' },
+  { n: 2, name: 'In Development', status: 'In development', note: '' },
+  { n: 3, name: 'Classified', status: 'Classified', note: '' },
+  { n: 4, name: 'Classified', status: 'Classified', note: '' },
+]
+export type Char = { slug: string; name: string; alias?: string; realName?: string; kind: 'guardian' | 'villain'; role?: string; origin?: string; abilities?: string; affiliations?: string; first?: string; desc?: string }
+const S = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-$/, '')
+const C = (kind: Char['kind'], fields: Omit<Char, 'slug' | 'kind'>): Char => ({ slug: S(fields.name), kind, ...fields })
+export const characters: Char[] = [
+  C('guardian', { name: 'Alpha Void', alias: 'Alpha Void', realName: 'Unknown', role: 'Leader of the Guardians Syndicate; primary frontline hero', origin: 'Unknown', abilities: 'Superhuman strength · Extreme durability · Flight · Enhanced speed · Enhanced vision · Scanning vision · UV vision · Supersonic clap · Powerful eye energy beams', affiliations: 'Guardians Syndicate', first: 'Volume I — Episode 1', desc: 'The most powerful frontline member of the Guardians Syndicate and its central combat force. Alpha Void possesses immense physical power and advanced visual abilities, making him one of the greatest defenders of Ashton.' }),
+  C('guardian', { name: 'Queen', alias: 'Queen', realName: 'Katherine', role: 'Founder of the Guardians Syndicate; senior Guardian; strategist and magical specialist', origin: 'One of the founding members of the Guardians Syndicate.', abilities: 'Magic manipulation · Magical barriers · Magical restraints · Telekinetic-style magical abilities · Flight / levitation · Recent-memory reading through physical contact', affiliations: 'Guardians Syndicate · Founding Member', first: 'Volume I — Episode 1', desc: "A founding Guardian and one of the team's most experienced members. Queen combines powerful magic with strategic thinking and often acts as a stabilizing force for the team." }),
+  C('guardian', { name: 'Atom Girl', alias: 'Atom Girl', realName: 'Daru', role: 'Youngest Guardian; atomic manipulation specialist', origin: 'From Hingetown.', abilities: 'Atomic manipulation · Atomic energy projection · Atomic constructs · Matter manipulation · Large-scale atomic attacks · Energy-based combat', affiliations: 'Guardians Syndicate', first: 'Volume I — Episode 1', desc: 'The youngest member of the Guardians Syndicate. Atom Girl can manipulate atomic energy and matter, allowing her to create powerful offensive and defensive constructs.' }),
+  C('guardian', { name: 'Shape Shifter', alias: 'Shape Shifter', realName: 'Laks', role: 'Guardian; reconnaissance, infiltration, technology and adaptive combat specialist', origin: 'An orphan who grew up with support from the Guardians Syndicate.', abilities: 'Shape-shifting · Body transformation · Physical enhancement · Enlarged limbs · Disguise · Infiltration · Adaptive combat · Technological expertise', affiliations: 'Guardians Syndicate', first: 'Volume I — Episode 1', desc: 'A highly adaptable Guardian capable of transforming his body for combat, infiltration and reconnaissance. His technological skills also make him an important support member of the team.' }),
+  C('guardian', { name: 'Rampage', alias: 'Rampage', realName: 'Unknown', role: 'Guardian; elite assassin and close-combat specialist', origin: 'Unknown', abilities: 'Enhanced physical abilities · Exceptional agility · Close-quarters combat · Stealth · Assassination · Advanced swordsmanship', affiliations: 'Guardians Syndicate', first: 'Volume I — Episode 1', desc: 'A highly disciplined and lethal close-combat specialist. Rampage combines speed, stealth and deadly swordsmanship to eliminate threats before they can escalate.' }),
+  C('guardian', { name: 'Hazard', alias: 'Hazard', realName: 'Leo', role: 'Guardian; offensive combat and chemical-energy specialist', origin: 'Leo became a Guardian while dealing with an accident.', abilities: 'Chemical manipulation · Corrosive energy · Acid attacks · Destructive chemical reactions · Offensive chemical-based combat', affiliations: 'Guardians Syndicate', first: 'Volume I — Episode 1', desc: 'A dangerous offensive specialist capable of manipulating destructive chemical reactions and corrosive energy. Despite his destructive abilities, Hazard is a member of the Guardians Syndicate.' }),
+  C('guardian', { name: 'Extinct', alias: 'Extinct', realName: 'Unknown', role: 'Senior Guardian; senior frontline combatant and investigator', origin: 'Unknown', abilities: 'Superhuman strength · Immense durability · Enhanced physical abilities · Exceptional combat experience · Extraordinary longevity', affiliations: 'Guardians Syndicate · Senior Member', first: 'Volume I — Episode 1', desc: 'One of the most experienced members of the Guardians Syndicate. Extinct combines immense physical power with investigative instincts and a strong philosophical approach to justice.' }),
+  C('villain', { name: 'Glowplug', alias: 'Glowplug', realName: 'Unknown', role: 'Frontline supervillain; energy-based combatant', origin: 'Unknown', abilities: 'Light manipulation · Energy projection · High-intensity energy attacks · Enhanced combat through specialized suit · Suit-powered energy amplification', affiliations: 'Chaos Syndicate', first: 'Volume I — Episode 1', desc: 'A powerful energy-based villain whose specialized suit amplifies his destructive abilities, making him a dangerous frontline threat.' }),
+  C('villain', { name: 'Chilltank', alias: 'Chilltank', realName: 'Unknown', role: 'Heavy frontline villain; defensive combat specialist', origin: 'Unknown', abilities: 'Kinetic energy absorption · Energy storage · Armour Tank ability · Enhanced durability · Heavy armored combat', affiliations: 'Chaos Syndicate', first: 'Volume I — Episode 2', desc: 'A heavily armored combatant capable of absorbing kinetic energy and turning incoming attacks into stored power.' }),
+  C('villain', { name: 'Klin Ruskov', alias: 'Russian Terrorist', realName: 'Klin Ruskov', role: 'Russian superhuman terrorist; elite frontline combatant', origin: 'Russia', abilities: 'Extreme superhuman strength · Exceptional jumping ability · High physical speed · Enhanced durability · Powerful close-range combat', affiliations: 'Chaos Syndicate', first: 'Volume I — Episode 4', desc: 'A physically powerful Russian superhuman terrorist capable of combining overwhelming strength, speed and extraordinary jumping ability with firearms expertise.' }),
+  C('villain', { name: 'Skipper', alias: 'Skipper', realName: 'Unknown', role: 'Chaos Syndicate operative; teleportation specialist', origin: 'Unknown', abilities: 'Teleportation · Quantumization · Rapid spatial movement · Quantum-based evasion · High-mobility combat', affiliations: 'Chaos Syndicate', first: 'Volume I — Episode 4', desc: 'A highly mobile Chaos operative who uses quantum manipulation and teleportation to move through combat situations with exceptional speed and unpredictability.' }),
+  C('villain', { name: 'Sniper', alias: 'Unknown', realName: 'Unknown', role: 'Masked assassin and long-range operative', origin: 'Unknown', abilities: 'Exceptional marksmanship · Long-range combat · Stealth · Surveillance · Tactical positioning · Assassination · Advanced firearm proficiency', affiliations: 'Unknown / associated with Chaos-related operations', first: 'Volume I — Episode 1', desc: 'A mysterious masked marksman who operates from a distance, relying on precision, stealth and tactical positioning.' }),
+  C('villain', { name: 'Foul Play', alias: 'Foul Play', realName: 'Unknown', role: 'Psychological supervillain and serial killer', origin: 'Unknown', abilities: 'Psychological manipulation · Manipulation through despair · Exploitation of guilt · Exploitation of hopelessness · Emotional manipulation · Psychological influence', affiliations: 'Independent', first: 'Volume I — Episode 6', desc: "A psychologically dangerous villain who weaponizes despair, guilt and hopelessness. Unlike conventional Chaos operatives, Foul Play operates according to his own agenda." }),
+  C('villain', { name: 'Professor Proto', alias: 'Professor Proto', realName: 'Unknown', role: 'Chaos Syndicate scientist, strategist and experiment designer', origin: 'Unknown', abilities: 'Exceptional scientific intelligence · Genetic experimentation · Biological engineering · Human experimentation · Mutant experimentation · Advanced technological development · Strategic analysis · Superhuman enhancement research', affiliations: 'Chaos Syndicate', first: 'Volume I — Episode 1', desc: "The scientific mind behind many of Chaos Syndicate's experiments. Professor Proto combines advanced science, experimentation and strategic planning to develop new threats." }),
+  C('villain', { name: 'Bossmode', alias: 'The Living Hell', realName: 'Unknown', role: 'Leader of the Chaos Syndicate; ruler of Dark City; overarching antagonist', origin: 'Unknown', abilities: 'Extreme superhuman strength · Exceptional durability · Superhuman physical power · Advanced combat ability · Strategic intelligence · Psychological intimidation · Command over Chaos Syndicate forces', affiliations: 'Chaos Syndicate', first: 'Volume I — Episode 3', desc: 'The mysterious leader of the Chaos Syndicate and ruler of Dark City. Bossmode operates from the shadows while directing powerful villains and dangerous operations against the Guardians.' }),
+]
+export const charArt = (slug: string) => Object.entries(art).find(([p]) => p.includes(`/${slug}.`))?.[1]
