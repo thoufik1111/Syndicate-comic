@@ -9,10 +9,11 @@ import ep8 from './assets/posters/ep8.png'
 import ep9 from './assets/posters/ep9.png'
 const g = (o: Record<string, string>) => Object.entries(o).sort(([a], [b]) => a.localeCompare(b, undefined, { numeric: true }))
 const all = import.meta.glob('./episodes/*/*.{jpg,jpeg,png,webp,avif}', { eager: true, query: '?url', import: 'default' }) as Record<string, string>
+const volumeTwoPosterFiles = import.meta.glob('./assets/posters/ep*.{png,jpg,jpeg,webp}', { eager: true, query: '?url', import: 'default' }) as Record<string, string>
 export const hero = Object.values(import.meta.glob('./assets/hero.*', { eager: true, query: '?url', import: 'default' }) as Record<string, string>)[0] as string | undefined
 const art = import.meta.glob('./characters/*.*', { eager: true, query: '?url', import: 'default' }) as Record<string, string>
 
-export type Episode = { n: number; title: string; desc: string; pdf?: string; poster: string }
+export type Episode = { n: number; title: string; desc: string; pdf?: string; poster: string; ready?: boolean }
 export const episodes: Episode[] = [
   { n: 1, title: 'Guardians Syndicate', desc: '', pdf: '/episodes/01/ep1_compressed.pdf', poster: ep1 },
   { n: 2, title: 'The Other Side',      desc: '', pdf: '/episodes/02/ep2_compressed.pdf', poster: ep2 },
@@ -24,6 +25,18 @@ export const episodes: Episode[] = [
   { n: 8, title: 'Foulplay & Chaos',    desc: '', pdf: '/episodes/08/ep8_compressed.pdf', poster: ep8 },
   { n: 9, title: 'Alpha Unleashed',     desc: '', pdf: '/episodes/09/ep9_compressed.pdf', poster: ep9 },
 ]
+export const volumeTwoEpisodes: Episode[] = Array.from({ length: 9 }, (_, i) => {
+  const n = i + 11
+  const poster = Object.entries(volumeTwoPosterFiles).find(([path]) => new RegExp(`/ep${n}\\.(png|jpe?g|webp)$`, 'i').test(path))?.[1]
+  return {
+    n,
+    title: i === 0 ? 'Rebuild Ashton' : `Episode ${i + 1}`,
+    desc: '',
+    pdf: `/episodes/${n}/ep${n}.pdf`,
+    poster: poster ?? '',
+    ready: !!poster,
+  }
+})
 export function episodeAssets(n: number) {
   const k = `/episodes/${String(n).padStart(2, '0')}/`
   const f = g(all).filter(([p]) => p.includes(k))
@@ -33,7 +46,7 @@ export function episodeAssets(n: number) {
 }
 export const volumes = [
   { n: 1, name: 'The Beginning', status: 'Complete', note: '09 episodes' },
-  { n: 2, name: 'In Development', status: 'In development', note: '' },
+  { n: 2, name: 'A Hollow Triumph', status: 'In development', note: '01 episode ready' },
   { n: 3, name: 'Classified', status: 'Classified', note: '' },
   { n: 4, name: 'Classified', status: 'Classified', note: '' },
 ]

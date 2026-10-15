@@ -14,7 +14,9 @@ function Sparks() {
     resize(); addEventListener('resize', resize)
     type Spark = { x: number; y: number; vx: number; vy: number; life: number; max: number; r: number; hue: number }
     const sparks: Spark[] = []
+    let active = false
     const spawn = () => {
+      if (document.hidden) return
       const count = 6 + Math.floor(Math.random() * 6)
       for (let i = 0; i < count; i++) {
         const fromRight = Math.random() > 0.5
@@ -29,9 +31,11 @@ function Sparks() {
           hue: 28 + Math.random() * 22,
         })
       }
+      if (!active) {
+        active = true
+        raf = requestAnimationFrame(draw)
+      }
     }
-    spawn()
-    const interval = setInterval(spawn, 4500 + Math.random() * 1000)
     const draw = () => {
       ctx.clearRect(0, 0, W, H)
       for (let i = sparks.length - 1; i >= 0; i--) {
@@ -47,9 +51,11 @@ function Sparks() {
         ctx.fill()
         if (s.life > s.max) sparks.splice(i, 1)
       }
-      raf = requestAnimationFrame(draw)
+      if (sparks.length) raf = requestAnimationFrame(draw)
+      else active = false
     }
-    draw()
+    spawn()
+    const interval = setInterval(spawn, 4500 + Math.random() * 1000)
     return () => { cancelAnimationFrame(raf); clearInterval(interval); removeEventListener('resize', resize) }
   }, [])
   return <canvas ref={c} id="sparks" aria-hidden="true" />

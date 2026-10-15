@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState, FormEvent } from 'react'
 import { Link, useParams, Navigate } from 'react-router-dom'
-import { episodes, episodeAssets, volumes, characters, charArt, Char } from './data'
+import { episodes, volumeTwoEpisodes, episodeAssets, volumes, characters, charArt, Char } from './data'
 import heroBg from './assets/hero.png'
 import cityBg from './assets/city-bg.jpeg'
 import guardiansLineup from '../Guardians shitout.jpeg'
 import { getViews, hit, fmt, getNotes, postNote, Note, live, useMeta } from './lib'
 
 const CLS = 'Classified'
-function useViews() { const [v, s] = useState<Record<number, number>>({}); useEffect(() => { getViews().then(s) }, []); return v }
+function useViews() { const [v, s] = useState<Record<number, number>>({}); useEffect(() => { getViews().then(s) }, []); return [v, s] as const }
 function Reveal({ children }: { children: React.ReactNode }) {
   const r = useRef<HTMLDivElement>(null)
   useEffect(() => { const o = new IntersectionObserver(([e]) => { if (e.isIntersecting) { r.current?.classList.add('in'); o.disconnect() } }, { threshold: .2 }); r.current && o.observe(r.current); return () => o.disconnect() }, [])
@@ -43,7 +43,7 @@ function useEpSparks() {
 
 export function Home() {
   useMeta('Home', 'Guardians Syndicate is an original cinematic superhero and sci-fi comic universe. Volume I is complete.')
-  const views = useViews(), total = Object.values(views).reduce((a, b) => a + b, 0), bg = useRef<HTMLDivElement>(null)
+  const [views] = useViews(), total = Object.values(views).reduce((a, b) => a + b, 0), bg = useRef<HTMLDivElement>(null)
   useEffect(() => {
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return
     const f = () => bg.current && (bg.current.style.transform = `translate3d(0,${Math.min(scrollY, 900) * .18}px,0) scale(1.08)`)
@@ -74,7 +74,9 @@ export function Home() {
       <div className="saga">
         {volumes.map(v => v.n === 1
           ? <Link key={v.n} to="/volume/1" className="vol vol1"><img src={guardiansLineup} alt="" aria-hidden="true" className="vol1-poster" /><span className="label">Volume I · Complete</span><b className="big">{v.name}</b><span>{v.note} — read now →</span></Link>
-          : <div key={v.n} className="vol veil"><span className="label">Volume {v.n}</span><b className="big">{v.status}</b><span>Coming soon</span></div>)}
+          : v.n === 2
+            ? <Link key={v.n} to="/volume/2" className="vol vol2"><img src={heroBg} alt="" aria-hidden="true" className="vol2-poster" /><span className="label">Volume II · In development</span><b className="big">{v.name}</b><span>{v.note} — explore the volume →</span></Link>
+          : <div key={v.n} className="vol veil vol-classified"><span className="label">Volume {v.n}</span><b className="big">{v.status}</b><span>Coming soon</span></div>)}
       </div>
     </section>
     <section className="sec"><Reveal><h2 className="huge">The <span className="glow">Guardians</span></h2></Reveal>
@@ -99,24 +101,53 @@ export function Status() {
 }
 
 export function Volume() {
-  const { v } = useParams(); const views = useViews(), epSparks = useEpSparks()
-  useMeta('Volume I — The Beginning', 'Read all nine episodes of Guardians Syndicate Volume I: The Beginning.')
-  if (v !== '1') return <section className="sec page"><h1 className="mega">Volume {v}</h1><p className="lede">{CLS}. Nothing is public yet.</p></section>
+  const { v } = useParams(); const [views, setViews] = useViews(), epSparks = useEpSparks()
+  const isVolumeTwo = v === '2'
+  useMeta(isVolumeTwo ? 'Volume II — A Hollow Triumph' : 'Volume I — The Beginning', isVolumeTwo
+    ? 'Explore A Hollow Triumph, Volume II of Guardians Syndicate.'
+    : 'Read all nine episodes of Guardians Syndicate Volume I: The Beginning.')
+  if (v !== '1' && !isVolumeTwo) return <section className="sec page"><h1 className="mega">Volume {v}</h1><p className="lede">{CLS}. Nothing is public yet.</p></section>
   const total = Object.values(views).reduce((a, b) => a + b, 0)
+  const volumeTwoTotal = volumeTwoEpisodes.reduce((sum, episode) => sum + (views[episode.n] ?? 0), 0)
+  const title = isVolumeTwo ? 'A Hollow Triumph' : 'The Beginning'
   return <section className="sec page">
-    <p className="label">Volume I · Complete</p><h1 className="mega">The<br /><span className="glow">Beginning</span></h1>
-    {live && <p className="views">{fmt(total)} total views</p>}
-    <div className="eps">{episodes.map((e, i) => {
+    <nav className="volume-switch" aria-label="Choose a volume">
+      <Link to="/volume/1" className={!isVolumeTwo ? 'active' : ''} aria-current={!isVolumeTwo ? 'page' : undefined}>Volume I</Link>
+      <Link to="/volume/2" className={isVolumeTwo ? 'active' : ''} aria-current={isVolumeTwo ? 'page' : undefined}>Volume II</Link>
+    </nav>
+    <p className="label">{isVolumeTwo ? 'Volume II · In development' : 'Volume I · Complete'}</p>
+    <h1 className="mega">{isVolumeTwo ? <><span className="vol2-title-line">A Hollow</span><br /><span className="glow">Triumph</span></> : <>The<br /><span className="glow">Beginning</span></>}</h1>
+    {live && <p className="views">{fmt(isVolumeTwo ? volumeTwoTotal : total)} total views</p>}
+    {isVolumeTwo
+      ? <div className="eps">{volumeTwoEpisodes.map((e, i) => {
+        const card = <>
+          <div className="frame">{e.poster
+            ? <Img src={e.poster} alt={`${e.title} poster`} ratio="2/3" />
+            : <div className="ep-coming-placeholder" aria-hidden="true" />}</div>
+          <div className="meta"><span className="num">{String(i + 1).padStart(2, '0')}</span>
+            <h2>{e.ready ? e.title : 'Coming soon'}</h2>
+            {e.ready && <><Views n={views[e.n] ?? 0} /><span className="more">Read episode →</span></>}
+          </div>
+        </>
+        return e.ready
+          ? <a key={e.n} href={e.pdf} target="_blank" rel="noopener noreferrer" className={`ep e${i % 3}`} onMouseEnter={epSparks} onClick={() => {
+            void hit(e.n).then(count => {
+              if (count !== null) setViews(current => ({ ...current, [e.n]: count }))
+            })
+          }}>{card}</a>
+          : <article key={e.n} className={`ep e${i % 3} ep-locked`} aria-label={`Episode ${i + 1}, coming soon`}>{card}</article>
+      })}</div>
+      : <div className="eps">{episodes.map((e, i) => {
       const card = <>
-        <div className="frame"><img src={e.poster} alt={`${e.title} poster`} className="ep-poster" /></div>
+        <div className="frame"><img src={e.poster} alt={`${e.title} poster`} className="ep-poster" loading={i === 0 ? 'eager' : 'lazy'} decoding="async" /></div>
         <div className="meta"><span className="num">{String(e.n).padStart(2, '0')}</span><h2>{e.title}</h2>
           {e.desc && <p>{e.desc}</p>}<Views n={views[e.n]} /><span className="more">Read episode →</span></div>
       </>
       return e.pdf
         ? <a key={e.n} href={e.pdf} target="_blank" rel="noopener noreferrer" className={`ep e${i % 3}`} onMouseEnter={epSparks} onClick={() => { void hit(e.n) }}>{card}</a>
         : <Link key={e.n} to={`/read/${e.n}`} className={`ep e${i % 3}`} onMouseEnter={epSparks}>{card}</Link>
-    })}</div>
-    <Feedback />
+      })}</div>}
+    {!isVolumeTwo && <Feedback />}
   </section>
 }
 
@@ -181,7 +212,7 @@ export function Dossier() {
 }
 
 export function Charts() {
-  const views = useViews()
+  const [views] = useViews()
   useMeta('Episode Charts', 'See how many times each Guardians Syndicate episode has been read.')
   const rankedEpisodes = [...episodes].sort((a, b) => (views[b.n] ?? 0) - (views[a.n] ?? 0) || a.n - b.n)
 
