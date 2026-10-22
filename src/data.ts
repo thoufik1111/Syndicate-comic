@@ -30,7 +30,7 @@ export const volumeTwoEpisodes: Episode[] = Array.from({ length: 9 }, (_, i) => 
   const poster = Object.entries(volumeTwoPosterFiles).find(([path]) => new RegExp(`/ep${n}\\.(png|jpe?g|webp)$`, 'i').test(path))?.[1]
   return {
     n,
-    title: i === 0 ? 'Rebuild Ashton' : `Episode ${i + 1}`,
+    title: i === 0 ? 'Rebuild Ashton' : i === 1 ? 'Past Joins Us' : `Episode ${i + 1}`,
     desc: '',
     pdf: n === 12 ? '/episodes/12/ep2.pdf' : `/episodes/${n}/ep${n}.pdf`,
     poster: poster ?? '',
