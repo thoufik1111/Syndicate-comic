@@ -32,7 +32,7 @@ export const volumeTwoEpisodes: Episode[] = Array.from({ length: 9 }, (_, i) => 
     n,
     title: i === 0 ? 'Rebuild Ashton' : `Episode ${i + 1}`,
     desc: '',
-    pdf: `/episodes/${n}/ep${n}.pdf`,
+    pdf: n === 12 ? '/episodes/12/ep2.pdf' : `/episodes/${n}/ep${n}.pdf`,
     poster: poster ?? '',
     ready: !!poster,
   }
@@ -46,7 +46,7 @@ export function episodeAssets(n: number) {
 }
 export const volumes = [
   { n: 1, name: 'The Beginning', status: 'Complete', note: '09 episodes' },
-  { n: 2, name: 'A Hollow Triumph', status: 'In development', note: '01 episode ready' },
+  { n: 2, name: 'A Hollow Triumph', status: 'In development', note: '02 episodes ready' },
   { n: 3, name: 'Classified', status: 'Classified', note: '' },
   { n: 4, name: 'Classified', status: 'Classified', note: '' },
 ]
