@@ -79,6 +79,11 @@ export function Home() {
           : <div key={v.n} className="vol veil vol-classified"><span className="label">Volume {v.n}</span><b className="big">{v.status}</b><span>Coming soon</span></div>)}
       </div>
     </section>
+    <section className="sec"><Reveal><h2 className="huge">The <span className="glow">Spinoff</span></h2></Reveal>
+      <div className="spinoff">
+        <div className="vol veil spinoff-card"><span className="label">Spinoff</span><b className="big">{CLS}</b><span>Coming soon</span></div>
+      </div>
+    </section>
     <section className="sec"><Reveal><h2 className="huge">The <span className="glow">Guardians</span></h2></Reveal>
       <div className="strip scroll" aria-label="Guardians">
         <div className="strip-track">
@@ -213,26 +218,34 @@ export function Dossier() {
 
 export function Charts() {
   const [views] = useViews()
-  useMeta('Episode Charts', 'See how many times each Guardians Syndicate episode has been read.')
-  const rankedEpisodes = [...episodes].sort((a, b) => (views[b.n] ?? 0) - (views[a.n] ?? 0) || a.n - b.n)
+  useMeta('Episode Charts', 'See the top 10 most-read episodes across Volumes I and II of Guardians Syndicate.')
+  const rankedEpisodes = [
+    ...episodes.map(episode => ({ episode, volume: 'Volume I' })),
+    ...volumeTwoEpisodes.filter(episode => episode.ready).map(episode => ({ episode, volume: 'Volume II' })),
+  ].sort((a, b) => (views[b.episode.n] ?? 0) - (views[a.episode.n] ?? 0) || a.episode.n - b.episode.n).slice(0, 10)
 
   return <section className="sec page charts-page">
-    <p className="label">Volume I · Most read</p>
+    <p className="label">Volumes I &amp; II · Top 10 most read</p>
     <h1 className="mega">Episode<br /><span className="glow">Charts</span></h1>
     <p className="lede">The community’s most-read episodes, ranked by reader views.</p>
     <div className="episode-charts-wrap">
       <ol className="episode-charts" aria-label="Episodes ranked by views">
-        {rankedEpisodes.map((episode, index) => (
-          <li key={episode.n}>
-            <span className="charts-rank">{String(index + 1).padStart(2, '0')}</span>
-            <Link to={`/read/${episode.n}`} className="charts-poster" aria-label={`Read episode ${episode.n}: ${episode.title}`}>
-              <img src={episode.poster} alt="" loading="lazy" decoding="async" />
-            </Link>
-            <span className="label">Episode {String(episode.n).padStart(2, '0')}</span>
-            <h2><Link to={`/read/${episode.n}`}>{episode.title}</Link></h2>
-            <strong>{fmt(views[episode.n] ?? 0)}<span> views</span></strong>
-          </li>
-        ))}
+        {rankedEpisodes.map(({ episode, volume }, index) => {
+          const isVolumeTwo = volume === 'Volume II'
+          const label = `Read ${volume}, episode ${episode.n}: ${episode.title}`
+          const readLink = (children: React.ReactNode, className?: string) => isVolumeTwo
+            ? <a href={episode.pdf} target="_blank" rel="noopener noreferrer" aria-label={label} className={className} onClick={() => { void hit(episode.n) }}>{children}</a>
+            : <Link to={`/read/${episode.n}`} aria-label={label} className={className}>{children}</Link>
+          return (
+            <li key={episode.n}>
+              <span className="charts-rank">{String(index + 1).padStart(2, '0')}</span>
+              {readLink(<img src={episode.poster} alt="" loading="lazy" decoding="async" />, 'charts-poster')}
+              <span className="label">{volume} · Episode {String(episode.n > 10 ? episode.n - 10 : episode.n).padStart(2, '0')}</span>
+              <h2>{readLink(episode.title)}</h2>
+              <strong>{fmt(views[episode.n] ?? 0)}<span> views</span></strong>
+            </li>
+          )
+        })}
       </ol>
     </div>
   </section>
