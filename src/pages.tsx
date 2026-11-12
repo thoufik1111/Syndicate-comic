@@ -4,6 +4,7 @@ import { episodes, volumeTwoEpisodes, episodeAssets, volumes, characters, charAr
 import heroBg from './assets/hero.png'
 import cityBg from './assets/city-bg.jpeg'
 import guardiansLineup from '../Guardians shitout.jpeg'
+import universeMap from '../Syndicate universe worldmap.jpeg'
 import { getViews, hit, fmt, getNotes, postNote, Note, live, useMeta } from './lib'
 
 const CLS = 'Classified'
@@ -251,6 +252,55 @@ export function Charts() {
   </section>
 }
 
+type MapCity = 'ashton' | 'dark-city'
+function InteractiveWorldMap({ city, interactive = false }: { city?: MapCity; interactive?: boolean }) {
+  const [focus, setFocus] = useState<MapCity | null>(null)
+  const surface = useRef<HTMLDivElement>(null)
+  const onPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (event.pointerType !== 'mouse' || !surface.current) return
+    const bounds = event.currentTarget.getBoundingClientRect()
+    const x = (event.clientX - bounds.left) / bounds.width - .5
+    const y = (event.clientY - bounds.top) / bounds.height - .5
+    surface.current.style.setProperty('--map-rotate-x', `${-y * 5}deg`)
+    surface.current.style.setProperty('--map-rotate-y', `${x * 5}deg`)
+  }
+  const resetPointer = () => {
+    surface.current?.style.setProperty('--map-rotate-x', '0deg')
+    surface.current?.style.setProperty('--map-rotate-y', '0deg')
+  }
+  const zoom = city ?? focus
+  const cityLabel = zoom === 'ashton' ? 'Ashton' : 'Dark City'
+  return <div
+    className={`world-map ${interactive ? 'world-map-interactive' : ''} ${city ? `world-map-focus world-map-${city}` : ''} ${zoom ? `world-map-zoom-${zoom}` : ''}`}
+  >
+    <div className="world-map-viewport" onPointerMove={onPointerMove} onPointerLeave={resetPointer} onPointerCancel={resetPointer}>
+      <div className="world-map-surface" ref={surface}>
+        <img className="world-map-image" src={universeMap} alt="Syndicate Universe world map, showing its continents, countries and numbered cities." />
+        {zoom && <svg className="world-map-boundary" viewBox="0 0 1743 1080" aria-hidden="true">
+          {zoom === 'ashton'
+            ? <>
+              <path className="world-map-boundary-depth" transform="translate(0 7)" d="M 419 341 C 426 338 433 338 440 340 L 454 341 C 463 339 472 336 480 334 L 487 339 L 484 346 C 479 351 472 354 466 358 C 458 362 451 367 443 371 L 432 374 C 426 372 421 368 419 362 C 418 355 418 348 419 341 Z" />
+              <path className="world-map-boundary-line" d="M 419 341 C 426 338 433 338 440 340 L 454 341 C 463 339 472 336 480 334 L 487 339 L 484 346 C 479 351 472 354 466 358 C 458 362 451 367 443 371 L 432 374 C 426 372 421 368 419 362 C 418 355 418 348 419 341 Z" />
+            </>
+            : <>
+              <path className="world-map-boundary-depth" transform="translate(0 7)" d="M 506 282 C 511 280 515 276 520 275 C 526 276 530 279 535 277 C 540 278 543 283 548 286 C 551 291 556 293 560 298 L 562 306 C 564 312 570 316 570 322 C 567 326 562 329 560 334 C 559 341 564 348 561 353 C 557 356 551 353 547 349 C 543 343 542 336 538 331 C 535 327 531 327 527 331 C 521 335 515 339 508 340 C 501 340 496 337 491 334 C 487 331 483 326 480 321 C 478 316 482 312 486 308 C 490 304 491 298 495 294 C 498 289 502 286 506 282 Z" />
+              <path className="world-map-boundary-line" d="M 506 282 C 511 280 515 276 520 275 C 526 276 530 279 535 277 C 540 278 543 283 548 286 C 551 291 556 293 560 298 L 562 306 C 564 312 570 316 570 322 C 567 326 562 329 560 334 C 559 341 564 348 561 353 C 557 356 551 353 547 349 C 543 343 542 336 538 331 C 535 327 531 327 527 331 C 521 335 515 339 508 340 C 501 340 496 337 491 334 C 487 331 483 326 480 321 C 478 316 482 312 486 308 C 490 304 491 298 495 294 C 498 289 502 286 506 282 Z" />
+            </>}
+        </svg>}
+        {interactive && <>
+          <button className={`world-map-pin world-map-pin-ashton ${focus === 'ashton' ? 'active' : ''}`} type="button" aria-label="Zoom to Ashton, city 1" aria-pressed={focus === 'ashton'} onClick={() => setFocus(focus === 'ashton' ? null : 'ashton')}><span>1</span></button>
+          <button className={`world-map-pin world-map-pin-dark-city ${focus === 'dark-city' ? 'active' : ''}`} type="button" aria-label="Zoom to Dark City, city 2" aria-pressed={focus === 'dark-city'} onClick={() => setFocus(focus === 'dark-city' ? null : 'dark-city')}><span>2</span></button>
+        </>}
+      </div>
+    </div>
+    {interactive && <div className="world-map-caption" aria-live="polite">
+      <span>{zoom ? `${cityLabel} · City ${zoom === 'ashton' ? '01' : '02'}` : 'World map · Select city 01 or 02 to explore'}</span>
+      {zoom && <button type="button" onClick={() => setFocus(null)}>World view</button>}
+    </div>}
+    {city && <span className="world-map-focus-label">{city === 'ashton' ? '01 / ASHTON' : '02 / DARK CITY'}</span>}
+  </div>
+}
+
 export function About() {
   useMeta('About Story Book', 'Discover the story, characters and world behind Story Book and the Guardians Syndicate.')
   return <section className="sec page about-page">
@@ -290,16 +340,19 @@ export function About() {
           <h2 className="huge">Superhumans are part of <span className="glow">society.</span></h2>
           <p>Governments, organizations, cities, criminals and ordinary people all have to adapt to a world where extraordinary power is real. At its center, two very different forces are on a collision course.</p>
         </div>
+        <InteractiveWorldMap interactive />
         <div className="about-cities">
           <article className="about-city about-ashton">
             <span className="about-index">01 / THE CITY OF HEROES</span>
             <h3>Ashton</h3>
+            <InteractiveWorldMap city="ashton" />
             <p>Home of the Guardians Syndicate. The team responds to superhuman threats, stops dangerous criminals and protects people when ordinary authorities cannot.</p>
             <p>But protecting a city is more complicated than defeating an attacker. Every battle can affect thousands, every decision has consequences, and the Guardians—powerful as they are—are people with their own beliefs, conflicts and limits.</p>
           </article>
           <article className="about-city about-dark-city">
             <span className="about-index">02 / BEYOND THE REACH OF LAW</span>
             <h3>Dark City</h3>
+            <InteractiveWorldMap city="dark-city" />
             <p>A place shaped by criminals, mutants and dangerous individuals beyond the Guardians’ control. Dark City is the territory of the Chaos Syndicate, led by Bossmode.</p>
             <p>Here, power determines authority. Chaos has its own plans, experiments and alliances—and its actions reach further than the city. What the Guardians see on the surface may be only part of something much larger.</p>
           </article>
