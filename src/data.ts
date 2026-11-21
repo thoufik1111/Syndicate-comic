@@ -46,7 +46,7 @@ export function episodeAssets(n: number) {
 }
 export const volumes = [
   { n: 1, name: 'The Beginning', status: 'Complete', note: '09 episodes' },
-  { n: 2, name: 'A Hollow Triumph', status: 'In development', note: '08 episodes ready' },
+  { n: 2, name: 'A Hollow Triumph', status: 'Complete', note: '09 episodes' },
   { n: 3, name: 'Classified', status: 'Classified', note: '' },
   { n: 4, name: 'Classified', status: 'Classified', note: '' },
 ]

@@ -73,7 +73,7 @@ function Shell() {
       <Link to="/" className="logo">Guardians Syndicate</Link>
       <nav className={open ? 'open' : ''} aria-label="Primary">
         {links.map(([to, t]) => <NavLink key={to} to={to} end={to === '/'}>{t}</NavLink>)}
-        <Link to="/volume/1" className="cta-s">Read Volume I →</Link>
+        <Link to="/volume/2" className="cta-s">Read Volume II →</Link>
       </nav>
       <button className="burger" aria-expanded={open} aria-label="Menu" onClick={() => setOpen(!open)}><i /><i /></button>
     </header>
@@ -89,7 +89,7 @@ function Shell() {
       <h2 className="mega">Guardians<br /><span className="glow">Syndicate</span></h2>
       <p className="label">An original comic universe</p>
       <ul>{links.slice(1).map(([to, t]) => <li key={to}><Link to={to}>{t}</Link></li>)}</ul>
-      <Link to="/volume/1" className="mega-link">The story continues →</Link>
+      <Link to="/volume/2" className="mega-link">Read Volume II →</Link>
       <a className="footer-contact" href="https://linktr.ee/mohammedthoufik" target="_blank" rel="noopener noreferrer">Contact me · Linktree ↗</a>
       <small>© {new Date().getFullYear()} Guardians Syndicate. All rights reserved.</small>
     </footer>

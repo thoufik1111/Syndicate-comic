@@ -9,4 +9,4 @@ Setup: `npm i`, copy `.env.example` to `.env`, run `supabase.sql` in Supabase, `
 - Edit titles/descriptions/character facts in `src/data.ts`. Anything unfilled shows CLASSIFIED.
 
 ## Episode charts
-Charts shows the top 10 episodes across both volumes, sorted by their shared Supabase view counts. A Volume II episode enters the ranking when its poster is added; the list re-ranks from the latest counts when the charts page loads.
+Charts shows the top 10 episodes across both completed volumes, sorted by their shared Supabase view counts. A Volume II episode enters the ranking when its poster is added; the list re-ranks from the latest counts when the charts page loads.

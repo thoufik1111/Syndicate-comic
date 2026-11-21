@@ -43,7 +43,7 @@ function useEpSparks() {
 }
 
 export function Home() {
-  useMeta('Home', 'Guardians Syndicate is an original cinematic superhero and sci-fi comic universe. Volume I is complete.')
+  useMeta('Home', 'Guardians Syndicate is an original comic universe. Volumes I and II, 18 episodes, are complete and free to read.')
   const [views] = useViews(), total = Object.values(views).reduce((a, b) => a + b, 0), bg = useRef<HTMLDivElement>(null)
   useEffect(() => {
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return
@@ -56,27 +56,27 @@ export function Home() {
         <img src={heroBg} alt="" aria-hidden="true" className="hero-img" />
       </div>
       <div className="hero-in">
-        <p className="label">Vol. 01 / Guardians Archive / 2026</p>
+        <p className="label">Vol. 01–02 / Guardians Archive / 2026</p>
         <h1 className="mega">Guardians<br /><span className="glow">Syndicate</span></h1>
         <p className="tag">A world doesn't need heroes.<br />Until it has monsters.</p>
-        <div className="row"><Link className="btn" to="/volume/1">Read Volume I</Link><Link className="btn ghost" to="/universe">Explore the universe</Link></div>
+        <div className="row"><Link className="btn" to="/volume/2">Read Volumes</Link><Link className="btn ghost" to="/universe">Explore the universe</Link></div>
       </div>
     </section>
     <section className="sec intro"><Reveal>
       <h2 className="huge">Every hero has an origin.<br />Every villain has a reason.<br />Every war leaves <span className="glow">something behind.</span></h2>
-      <p className="lede">Guardians Syndicate is an original comic universe. Volume I, nine episodes, is complete and free to read here.</p>
+      <p className="lede">Guardians Syndicate is an original comic universe. Volumes I and II, 18 episodes in total, are complete and free to read here.</p>
     </Reveal>
       <dl className="stats">
-        {[['09', 'Episodes'], ['07', 'Guardians'], ['01', 'Completed volume'], ['01', 'Universe']].map(([n, l]) => <div key={l}><dt>{n}</dt><dd>{l}</dd></div>)}
+        {[['18', 'Episodes'], ['06', 'Guardians'], ['02', 'Volumes'], ['02', 'Universe']].map(([n, l]) => <div key={l}><dt>{n}</dt><dd>{l}</dd></div>)}
       </dl>
-      {live && total > 0 && <p className="label">{fmt(total)} total reads across Volume I</p>}
+      {live && total > 0 && <p className="label">{fmt(total)} total reads across Volumes I &amp; II</p>}
     </section>
     <section className="sec"><Reveal><h2 className="huge">The <span className="glow">Saga</span></h2></Reveal>
       <div className="saga">
         {volumes.map(v => v.n === 1
           ? <Link key={v.n} to="/volume/1" className="vol vol1"><img src={guardiansLineup} alt="" aria-hidden="true" className="vol1-poster" /><span className="label">Volume I · Complete</span><b className="big">{v.name}</b><span>{v.note} — read now →</span></Link>
           : v.n === 2
-            ? <Link key={v.n} to="/volume/2" className="vol vol2"><img src={heroBg} alt="" aria-hidden="true" className="vol2-poster" /><span className="label">Volume II · In development</span><b className="big">{v.name}</b><span>{v.note} — explore the volume →</span></Link>
+            ? <Link key={v.n} to="/volume/2" className="vol vol2"><img src={heroBg} alt="" aria-hidden="true" className="vol2-poster" /><span className="label">Volume II · Complete</span><b className="big">{v.name}</b><span>{v.note} — read now →</span></Link>
           : <div key={v.n} className="vol veil vol-classified"><span className="label">Volume {v.n}</span><b className="big">{v.status}</b><span>Coming soon</span></div>)}
       </div>
     </section>
@@ -110,7 +110,7 @@ export function Volume() {
   const { v } = useParams(); const [views, setViews] = useViews(), epSparks = useEpSparks()
   const isVolumeTwo = v === '2'
   useMeta(isVolumeTwo ? 'Volume II — A Hollow Triumph' : 'Volume I — The Beginning', isVolumeTwo
-    ? 'Explore A Hollow Triumph, Volume II of Guardians Syndicate.'
+    ? 'Read all nine complete episodes of A Hollow Triumph, Volume II of Guardians Syndicate.'
     : 'Read all nine episodes of Guardians Syndicate Volume I: The Beginning.')
   if (v !== '1' && !isVolumeTwo) return <section className="sec page"><h1 className="mega">Volume {v}</h1><p className="lede">{CLS}. Nothing is public yet.</p></section>
   const total = Object.values(views).reduce((a, b) => a + b, 0)
@@ -121,7 +121,7 @@ export function Volume() {
       <Link to="/volume/1" className={!isVolumeTwo ? 'active' : ''} aria-current={!isVolumeTwo ? 'page' : undefined}>Volume I</Link>
       <Link to="/volume/2" className={isVolumeTwo ? 'active' : ''} aria-current={isVolumeTwo ? 'page' : undefined}>Volume II</Link>
     </nav>
-    <p className="label">{isVolumeTwo ? 'Volume II · In development' : 'Volume I · Complete'}</p>
+    <p className="label">{isVolumeTwo ? 'Volume II · Complete' : 'Volume I · Complete'}</p>
     <h1 className="mega">{isVolumeTwo ? <><span className="vol2-title-line">A Hollow</span><br /><span className="glow">Triumph</span></> : <>The<br /><span className="glow">Beginning</span></>}</h1>
     {live && <p className="views">{fmt(isVolumeTwo ? volumeTwoTotal : total)} total views</p>}
     {isVolumeTwo
@@ -233,7 +233,8 @@ export function Charts() {
       <ol className="episode-charts" aria-label="Episodes ranked by views">
         {rankedEpisodes.map(({ episode, volume }, index) => {
           const isVolumeTwo = volume === 'Volume II'
-          const label = `Read ${volume}, episode ${episode.n}: ${episode.title}`
+          const episodeNumber = episode.n > 10 ? episode.n - 10 : episode.n
+          const label = `Read ${volume}, episode ${episodeNumber}: ${episode.title}`
           const readLink = (children: React.ReactNode, className?: string) => isVolumeTwo
             ? <a href={episode.pdf} target="_blank" rel="noopener noreferrer" aria-label={label} className={className} onClick={() => { void hit(episode.n) }}>{children}</a>
             : <Link to={`/read/${episode.n}`} aria-label={label} className={className}>{children}</Link>
@@ -241,7 +242,7 @@ export function Charts() {
             <li key={episode.n}>
               <span className="charts-rank">{String(index + 1).padStart(2, '0')}</span>
               {readLink(<img src={episode.poster} alt="" loading="lazy" decoding="async" />, 'charts-poster')}
-              <span className="label">{volume} · Episode {String(episode.n > 10 ? episode.n - 10 : episode.n).padStart(2, '0')}</span>
+              <span className="label">{volume} · Episode {String(episodeNumber).padStart(2, '0')}</span>
               <h2>{readLink(episode.title)}</h2>
               <strong>{fmt(views[episode.n] ?? 0)}<span> views</span></strong>
             </li>
@@ -396,16 +397,17 @@ export function About() {
         <article className="about-volume">
           <div className="about-volume-no">02</div>
           <div>
-            <p className="label">The world gets bigger</p>
-            <h3>Volume II — Questioning the world</h3>
-            <p>The conflict grows more complicated. The Guardians look beyond obvious enemies and begin questioning the systems, organizations and decisions around them.</p>
+            <p className="label">Mysteries revealed / Ideology tested</p>
+            <h3>Volume II — A Hollow Triumph</h3>
+            <p>The Syndicate mystery begins to unfold, and the truth behind the Cosmic Key is finally identified. A new team led by Foulplay forms against Ashton. Hauntings, losses, the past, returning powers and long-buried throwbacks challenge the Guardians—and force them to question how their ideology is changing.</p>
             <ul className="about-volume-topics">
-              <li><b>Politics</b><span>Secrets reach deeper than the Guardians expect.</span></li>
-              <li><b>The Syndicate mystery</b><span>What is the organization built upon—and how much of its history is hidden?</span></li>
-              <li><b>A mysterious object</b><span>Something connected to Chaos becomes part of a much larger problem.</span></li>
-              <li><b>New threats</b><span>Unfamiliar enemies push the Guardians into new territory.</span></li>
-              <li><b>Character change</b><span>Beliefs, relationships and trust are tested; each person must choose who to become.</span></li>
+              <li><b>The Syndicate mystery</b><span>The organization’s hidden truth begins to surface.</span></li>
+              <li><b>The Cosmic Key</b><span>The mystery surrounding the key is finally identified.</span></li>
+              <li><b>A new team</b><span>Foulplay leads a team rising against Ashton.</span></li>
+              <li><b>Hauntings &amp; loss</b><span>The past returns, bringing loss and old powers back into play.</span></li>
+              <li><b>Changing ideals</b><span>Throwbacks and hard choices challenge what the Guardians believe.</span></li>
             </ul>
+            <Link className="about-text-link" to="/volume/2">Read Volume II <span aria-hidden="true">→</span></Link>
           </div>
         </article>
       </section>
